@@ -1,8 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const app = express();
 const port = 3000;
+
+//Configurar cors para todas as rotas
+app.use(cors());
 
 //Configurar Json
 app.use(
@@ -40,6 +44,6 @@ mongoose
     });
 })
 .catch((err) => {
-    console.error("Opa, parece que tivemos problema para conectar com o banco, por esse motivo a API não foi inicializada.7");
+    console.error("Opa, parece que tivemos problema para conectar com o banco, por esse motivo a API não foi inicializada.");
     throw err
 });
