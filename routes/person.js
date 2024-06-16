@@ -119,7 +119,7 @@ router.patch("/:id", async (req, res) => {
     const id = req.params.id;
 
     if (!id) {
-        res.status(401).json({ message: "Por favor, forneca um ID para realizar a pesquisa!" });
+        res.status(401).json({ message: "Por favor, forneca um ID para localizarmos o cadastro no sistema!" });
         return
     }
 

@@ -1,3 +1,6 @@
 .env
 
 node_modules
+
+# Endereço do servidor MongoDB
+mongodb-adress.txt
