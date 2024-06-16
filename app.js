@@ -27,6 +27,10 @@ app.use("/person", person);
 const mask = require("./routes/mask");
 app.use("/mask", mask);
 
+//Definição da rota Gemini.
+const gemini = require("./routes/generative_ai");
+app.use("/google", gemini);
+
 //Saudação inicial da api
 app.get("/", (req, res) => {
     const saudacao = {
