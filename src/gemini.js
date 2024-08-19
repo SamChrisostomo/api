@@ -6,7 +6,7 @@ async function run(consulta) {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const chat = model.startChat({history: []});
     const query = await chat.sendMessage(consulta);
-    const genai_response = await query.response;
+    const genai_response = query.response;
 
     return genai_response.text();
 }
