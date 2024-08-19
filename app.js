@@ -5,18 +5,13 @@ require('dotenv').config();
 const app = express();
 const port = 3000;
 
-//Configurar cors para todas as rotas
-app.use(cors());
-
-//Configurar Json
+//Configurando encodificação da url, Json e uso de cors
 app.use(
     express.urlencoded({
         extended: true
     }),
-);
-
-app.use(
-    express.json()
+    express.json(),
+    cors()
 );
 
 //Definição da rota pessoa.
@@ -29,7 +24,7 @@ app.use("/mask", mask);
 
 //Definição da rota Gemini.
 const gemini = require("./routes/generative_ai");
-app.use("/google", gemini);
+app.use("/gemini", gemini);
 
 //Saudação inicial da api
 app.get("/", (req, res) => {

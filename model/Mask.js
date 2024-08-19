@@ -1,15 +1,16 @@
 const mongoose = require("mongoose");
 
 const Mask = mongoose.model("Mask", {
-    contato: String,
-    loja: Number,
-    caso: Number,
+    contato: { type:String},
+    loja: {type: Number },
+    caso: { type: Number, unique: true},
     sistema: String,
     assunto: String,
-    descricao: String,
-    email: String,
-    telefone: String,
-    horarioAtendimento: String
+    descricao: { type: Object },
+    email: { type: String },
+    telefone: { type: String },
+    horario_atendimento: { type: Object },
+    data_criacao: { type: Date, default: Date.now() },
 });
 
 module.exports = Mask;
