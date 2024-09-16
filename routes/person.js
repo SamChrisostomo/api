@@ -1,172 +1,37 @@
 const router = require('express').Router();
-const uuid = require('uuid').v4;
+const { body, header, param } = require("express-validator");
 
 //Importação do modelo Pessoa
 const Person = require('../model/Person');
+const { createPerson, authPerson, getPersons, getPerson, updatePerson, deletePerson } = require('../controllers/personController');
 
-router.post('/create', async (req, res) => {
-    const { name, email, phone, password } = req.body;
+router.post('/create', [
+    body('name').isString().isLength({ min: 3 }).withMessage('Nome deve ter pelo menos 3 caracteres.'),
+    body('email').isEmail().withMessage('Forneça um endereço de E-mail válido.'),
+    body('phone').isString().isLength({ min: 10, max: 11 }).withMessage('O telefone deve ter entre 10 e 11 caracteres.'),
+    body('password').isString().isStrongPassword({ minLength: 10, minLowercase: 1, minNumbers: 1, minUppercase: 1, minSymbols: 1 }).withMessage('Forneça uma senha com no mínimo 13 caracteres, contendo números, letras minúsculas e maiúsculas e símbolos.')
+], createPerson);
 
-    if (!name) {
-        res.status(401).json({ message: "O nome é obrigatório!" });
-        return
-    }
+router.post("/login", [
+    body('email').isEmail().withMessage('Força um endereço de E-mail válido.'),
+    body('password').isString().isLength({ min: 13 }).withMessage('Forneça uma senha váida, com no mínimo 13 caracteres.')
+], authPerson);
 
-    if (!email) {
-        res.status(401).json({ message: "O e-mail é obrigatório!" });
-        return
-    }
+router.get("/all", [
+    body('id').isString().isLength({ min: 24 }).withMessage('Forneça o ID válido para consulta.')
+], getPersons);
 
-    if (!phone) {
-        res.status(401).json({ message: "O telefone é obrigatório!" });
-        return
-    }
+router.get("/auth", [
+    header('token').isJWT().withMessage('Forneça um token válido.')
+], getPerson);
 
-    if (!password) {
-        res.status(401).json({ message: "A senha é obrigatória!" });
-        return
-    }
+router.patch("/:id", [
+    param('id').isString().withMessage('O ID enviado possui formato inválido.'),
+    body('name').isString().withMessage(''),
+    body('email').isEmail().withMessage('O E-mail fornecido para atualização é inválido.'),
+    body('phone').isString().isLength({ min: 10, max: 11 }).withMessage('Forneça um telefone válido com no mínimo 10 dígitos.')
+], updatePerson);
 
-    try {
-        const validateEmail = await Person.find({ email: email });
-
-        if (validateEmail.length != 0) {
-            res.status(401).json({
-                message: "E-mail já cadastrado, por favor, faça-login.",
-                page: "login"
-            });
-
-            return
-        }
-    } catch (error) {
-        res.status(500).json(error);
-    }
-
-    const person = {
-        name,
-        email,
-        phone,
-        password
-    }
-
-    try {
-        await Person.create(person);
-        res.status(201).json({ message: "Pessoa cadastrada com sucesso!" });
-    } catch (error) {
-        res.status(500).json(error);
-    }
-
-});
-
-router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        const personLogin = await Person.findOne({ email: email, password: password });
-        
-        if (personLogin) {
-            res.status(201).json(personLogin._id);
-        }
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-router.post("/token", async (req, res) => {
-    const { id } = req.body;
-
-    try {
-        const insertToken = await Person.updateOne({_id: id}, {token: uuid()});
-        res.status(201).json(insertToken);
-    } catch (error) {
-        res.status(500).json(error);
-    }
-
-});
-
-router.get("/all", async (req, res) => {
-    try {
-        const people = await Person.find();
-        res.status(201).json(people);
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-router.get("/:id", async (req, res) => {
-    const id = req.params.id;
-
-    if (!id) {
-        res.status(401).json({ message: "Por favor, forneca um ID para realizar a pesquisa!" });
-        return
-    }
-
-    try {
-        const findPerson = await Person.findOne({ _id: id });
-
-        if (findPerson.matchedCount === 0) {
-            res.status(400).json({ message: "Cadastro não encontrado, forneça um id válido." });
-            return
-        }
-
-        res.status(200).json(findPerson);
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-router.patch("/:id", async (req, res) => {
-    const id = req.params.id;
-
-    if (!id) {
-        res.status(401).json({ message: "Por favor, forneca um ID para localizarmos o cadastro no sistema!" });
-        return
-    }
-
-    const { name, email, phone } = req.body;
-
-    if (!name) {
-        res.status(401).json({ message: "O nome é obrigatório!" });
-        return
-    }
-
-    if (!email) {
-        res.status(401).json({ message: "O e-mail é obrigatório!" });
-        return
-    }
-
-    if (!phone) {
-        res.status(401).json({ message: "O telefone é obrigatório!" });
-        return
-    }
-
-    const person = {
-        name, email, phone
-    }
-
-    try {
-        const updatePerson = await Person.updateOne({ _id: id }, person);
-
-        if (updatePerson.matchedCount === 0) {
-            res.status(400).json({ message: "Cadastro não encontrado, por esse motivo nenhum dado foi atualizado." });
-            return
-        }
-
-        res.status(201).json({ message: "Dados atualizados com sucesso.", person });
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
-
-router.delete("/:id", async (req, res) => {
-    const id = req.params.id;
-
-    try {
-        await Person.deleteOne({ _id: id });
-        res.status(200).json({ message: "Usuário removido com sucesso!" });
-    } catch (error) {
-        res.status(500).json(error);
-    }
-});
+router.delete("/:id", deletePerson);
 
 module.exports = router;
