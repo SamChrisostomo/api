@@ -25,11 +25,8 @@ router.get("/auth", [
     header('token').isJWT().withMessage('Forneça um token válido.')
 ], getPerson);
 
-router.patch("/:id", [
-    param('id').isString().withMessage('O ID enviado possui formato inválido.'),
-    body('name').isString().withMessage(''),
-    body('email').isEmail().withMessage('O E-mail fornecido para atualização é inválido.'),
-    body('phone').isString().isLength({ min: 10, max: 11 }).withMessage('Forneça um telefone válido com no mínimo 10 dígitos.')
+router.patch("/", [
+    header('token').isJWT().withMessage('Forneça um token válido.'),
 ], updatePerson);
 
 router.delete("/:id", deletePerson);
