@@ -1,41 +1,36 @@
-const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
+
 require('dotenv').config();
+
+const express = require('express');
+const router = express.Router();
+const { param, validationResult } = require('express-validator');
+const cors = require('cors');
+const { customErros } = require('./middlewares/CustomErrors');
+
 const app = express();
 const port = 3000;
+
 
 //Configurando encodificação da url, Json e uso de cors
 app.use(
     express.urlencoded({
-        extended: true
+        extended: true,
     }),
     express.json(),
-    cors()
+    cors(),
 );
-
-//Definição da rota pessoa.
-const person = require("./routes/person");
-app.use("/person", person);
-
-//Definição da rota Mascara.
-const mask = require("./routes/mask");
-app.use("/mask", mask);
-
-//Definição da rota Gemini.
-const gemini = require("./routes/generative_ai");
-app.use("/gemini", gemini);
 
 //Saudação inicial da api
 app.get("/", (req, res) => {
     const saudacao = {
-        api:{
+        api: {
             api_name: "",
             api_version: "1.1.0",
             api_description: "",
             api_author: "Samuel Crisóstomo",
         },
-        person:{
+        person: {
             person_create: {
                 url: "/person/create",
                 method: "post",
@@ -79,21 +74,51 @@ app.get("/", (req, res) => {
     res.status(200).json(saudacao);
 });
 
+//Definição da rota pessoa.
+const person = require("./routes/person");
+app.use("/person", person);
+
+//Definição da rota Mascara.
+const mask = require("./routes/mask");
+app.use("/mask", mask);
+
+//Definição da rota Gemini.
+const gemini = require("./routes/generativeAi");
+app.use("/gemini", gemini);
+
+app.get("/profile-photo/:rota/:avatar", [
+    param('rota').isString().isLength({ min: 3 }).withMessage('Forneça a rota do arquivo.'),
+    param('avatar').isString().isLength({ min: 3 }).withMessage('Forneça um nome de arquivo válido.')
+], (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        next({
+            status: 400,
+            message: "Erro na validação.",
+            errors: errors.array()
+        });
+    }
+    const { rota, avatar } = req.params;
+    res.sendFile(__dirname + `\\${rota}\\${avatar}`);
+});
+
+app.use((err, req, res, next) => customErros(err, req, res));
+
 const DBUSER = process.env.DB_USER;
 const DBPASS = process.env.DB_PASS;
 const DBNAME = process.env.DB_NAME;
 const DBATLAS = `mongodb+srv://${DBUSER}:${DBPASS}@apicluster.dqnz509.mongodb.net/${DBNAME}?retryWrites=true&w=majority`;
-const DBLOCAL = 'mongodb://127.0.0.1:27017';
+//const DBLOCAL = 'mongodb://127.0.0.1:53074';
 
 mongoose
-.connect(DBLOCAL)
-.then(() => {
-    console.info("MongoDB conectado!");
-    app.listen(port, () => {
-        console.info("Servidor express iniciado na porta: " + port);
+    .connect(DBATLAS)
+    .then(() => {
+        console.info("MongoDB conectado!");
+        app.listen(port, () => {
+            console.info("Servidor express iniciado na porta: " + port);
+        });
+    })
+    .catch((err) => {
+        console.error("Opa, parece que tivemos problema para conectar com o banco, por esse motivo a API não foi inicializada.");
+        throw err
     });
-})
-.catch((err) => {
-    console.error("Opa, parece que tivemos problema para conectar com o banco, por esse motivo a API não foi inicializada.");
-    throw err
-});
