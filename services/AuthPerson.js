@@ -35,6 +35,6 @@ exports.getProfile = (person) => {
 }
 
 exports.authPerson = async (token) => {
-    const decoded = await jwt.verify(token, this.getHash());
+    const decoded = jwt.verify(token, this.getHash());
     return decoded;
 }
