@@ -3,7 +3,8 @@ const { body, header, param } = require("express-validator");
 
 //Importação do modelo Pessoa
 const Person = require('../model/Person');
-const { createPerson, authPerson, getPersons, getPerson, updatePerson, deletePerson } = require('../controllers/personController');
+const { createPerson, authPerson, getPerson, updatePerson, deletePerson, uploadProfilePhoto } = require('../controllers/personController');
+const { upload } = require('../middlewares/FileStorage');
 
 router.post('/create', [
     body('name').isString().isLength({ min: 3 }).withMessage('Nome deve ter pelo menos 3 caracteres.'),
@@ -17,18 +18,21 @@ router.post("/login", [
     body('password').isString().isLength({ min: 13 }).withMessage('Forneça uma senha váida, com no mínimo 13 caracteres.')
 ], authPerson);
 
-router.get("/all", [
-    body('id').isString().isLength({ min: 24 }).withMessage('Forneça o ID válido para consulta.')
-], getPersons);
-
 router.get("/auth", [
     header('token').isJWT().withMessage('Forneça um token válido.')
 ], getPerson);
 
-router.patch("/", [
+router.patch("/update", [
     header('token').isJWT().withMessage('Forneça um token válido.'),
 ], updatePerson);
 
-router.delete("/:id", deletePerson);
+router.delete("/delete", [
+    header('token').isJWT().withMessage('Forneça um token válido.'),
+], deletePerson);
+
+router.post('/upload', [
+    header('token').isJWT().withMessage('Forneça um token válido.'),
+    body('path').isString().withMessage('Forneça o caminho para armazenamento do arquivo.'),
+], upload.single('avatar'), uploadProfilePhoto);
 
 module.exports = router;
