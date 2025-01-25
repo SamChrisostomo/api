@@ -1,6 +1,11 @@
+#variáveis de ambiente
 .env
 
-node_modules
+#pastas
+/node_modules
+/assets
 
-# Endereço do servidor MongoDB
-mongodb-adress.txt
+#arquivos de configuração
+hash.txt
+erros.log
+jsconfig.json
