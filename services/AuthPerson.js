@@ -24,9 +24,8 @@ exports.getHash = () => {
 
 exports.getProfile = (person) => {
     let newPerson = {
+        id: person._id,
         name: person.name,
-        bio: person.biography,
-        avatar: person.avatar,
         email: person.email,
         phone: person.phone,
     }

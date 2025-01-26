@@ -9,7 +9,7 @@ const cors = require("cors");
 const { customErros } = require("./middlewares/CustomErrors");
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 //Configurando encodificação da url, Json e uso de cors
 app.use(

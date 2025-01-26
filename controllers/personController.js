@@ -66,7 +66,7 @@ exports.authPerson = async (req, res, next) => {
         const personLogin = await Person.findOne({ email: email });
 
         if (personLogin && personLogin.password === password) {
-            jwt.sign({ id: personLogin._id }, getHash(), { expiresIn: '1h' }, function (err, token) {
+            jwt.sign({ id: personLogin._id }, getHash(), { expiresIn: '7d' }, function (err, token) {
                 if (err) {
                     return next({
                         error: err
@@ -99,8 +99,6 @@ exports.getPersons = async (req, res, next) => {
             message: "Erro na validação.",
             errors: errors.array(),
         });
-
-        return
     }
 
     const { id } = req.body;
