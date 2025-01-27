@@ -82,14 +82,6 @@ app.get("/", (req, res) => {
 const person = require("./routes/person");
 app.use("/person", person);
 
-//Definição da rota Mascara.
-const mask = require("./routes/mask");
-app.use("/mask", mask);
-
-//Definição da rota Gemini.
-const gemini = require("./routes/generativeAi");
-app.use("/gemini", gemini);
-
 app.get(
   "/profile-photo/:rota/:avatar",
   [
