@@ -3,8 +3,12 @@ const { body, header, param } = require("express-validator");
 
 //Importação do modelo Pessoa
 const Person = require('../model/Person');
-const { createPerson, authPerson, getPerson, updatePerson, deletePerson, uploadProfilePhoto } = require('../controllers/personController');
+const { createPerson, authPerson, getPerson, updatePerson, deletePerson, uploadProfilePhoto, getPersons } = require('../controllers/personController');
 const { upload } = require('../middlewares/FileStorage');
+
+router.get('/all', [
+    header('token').isJWT().withMessage('Forneça um token válido')
+], getPersons);
 
 router.post('/create', [
     body('name').isString().isLength({ min: 3 }).withMessage('Nome deve ter pelo menos 3 caracteres.'),
